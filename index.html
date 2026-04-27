@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK Job Scam Checker — Is this job offer real?</title>
+  <meta name="description" content="Paste any recruiter message and instantly scan it for UK job scam signals. Free AI-powered tool." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f8f7f5;
+      --text: #1a1a18;
+      --text2: #5c5c58;
+      --text3: #9a9a94;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --accent: #1d6f42;
+      --accent-bg: #edf7f1;
+      --danger: #c0392b;
+      --danger-bg: #fdf0ef;
+      --warning: #a05c00;
+      --warning-bg: #fef8ee;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --bg2: #242422;
+        --text: #f0efe8;
+        --text2: #a8a8a0;
+        --text3: #6a6a64;
+        --border: rgba(255,255,255,0.10);
+        --border2: rgba(255,255,255,0.18);
+        --accent: #4caf7d;
+        --accent-bg: #0f2318;
+        --danger: #e57373;
+        --danger-bg: #2a1a1a;
+        --warning: #e8a84a;
+        --warning-bg: #281f10;
+      }
+    }
+
+    body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { border-bottom: 0.5px solid var(--border); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .shield { font-size: 16px; }
+    .logo-text { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); }
+    .logo-sub { font-size: 11px; color: var(--text3); margin-left: 2px; }
+
+    main { max-width: 600px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 0.6rem; }
+    h1 { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--text); margin-bottom: 0.5rem; }
+    .subtitle { font-size: 15px; color: var(--text2); line-height: 1.6; margin-bottom: 1.75rem; }
+
+    label.input-label { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 8px; display: block; }
+
+    textarea {
+      width: 100%; min-height: 160px; padding: 14px; font-size: 14px;
+      font-family: inherit; line-height: 1.6; color: var(--text);
+      background: var(--bg); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); resize: vertical; outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--text3); }
+
+    button.primary {
+      display: block; width: 100%; margin-top: 12px; padding: 13px;
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      color: #fff; background: var(--accent); border: none;
+      border-radius: var(--radius-lg); cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button.primary:hover { opacity: 0.88; }
+    button.primary:active { transform: scale(0.99); }
+    button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .loading { display: none; text-align: center; padding: 2.5rem 0; color: var(--text2); font-size: 14px; }
+    .results { display: none; margin-top: 2rem; }
+
+    .verdict-card {
+      padding: 1.1rem 1.25rem; border-radius: var(--radius-lg);
+      border: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .verdict-card.safe { background: var(--accent-bg); border-color: var(--accent); }
+    .verdict-card.suspicious { background: var(--warning-bg); border-color: var(--warning); }
+    .verdict-card.scam { background: var(--danger-bg); border-color: var(--danger); }
+
+    .verdict-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text3); margin-bottom: 4px; }
+    .verdict-text { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .verdict-card.safe .verdict-text { color: var(--accent); }
+    .verdict-card.suspicious .verdict-text { color: var(--warning); }
+    .verdict-card.scam .verdict-text { color: var(--danger); }
+    .verdict-summary { font-size: 14px; color: var(--text); line-height: 1.55; }
+
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text3); margin-bottom: 10px; }
+
+    .flag-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+    .flag-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .flag-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .flag-detail { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+    .advice-card { padding: 1.1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--bg2); margin-top: 1.25rem; }
+    .advice-text { font-size: 14px; color: var(--text); line-height: 1.65; }
+
+    .disclaimer { font-size: 12px; color: var(--text3); margin-top: 1.25rem; line-height: 1.5; }
+
+    footer { text-align: center; padding: 1.5rem; font-size: 12px; color: var(--text3); border-top: 0.5px solid var(--border); }
+
+    @media (max-width: 480px) { h1 { font-size: 22px; } main { padding: 1.5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="shield">🛡️</span>
+  <span class="logo-text">Job Scam Checker</span>
+  <span class="logo-sub">UK</span>
+</header>
+
+<main>
+  <p class="eyebrow">Free AI-powered tool</p>
+  <h1>Is this job offer a scam?</h1>
+  <p class="subtitle">Paste any recruiter message, job offer email, or WhatsApp message. We scan for UK job scam signals in seconds.</p>
+
+  <label class="input-label" for="scamMsg">Paste the message or job offer below</label>
+  <textarea id="scamMsg" placeholder="Paste the recruiter message, job offer, or WhatsApp text here..."></textarea>
+  <button class="primary" id="checkBtn" onclick="checkScam()">Check for scam signals</button>
+
+  <div class="loading" id="loading">Scanning for scam signals...</div>
+
+  <div class="results" id="results">
+    <div class="verdict-card" id="verdictCard">
+      <div class="verdict-label">Verdict</div>
+      <div class="verdict-text" id="verdictText"></div>
+      <div class="verdict-summary" id="verdictSummary"></div>
+    </div>
+    <div>
+      <div class="section-label" id="flagsLabel"></div>
+      <div id="flagsList"></div>
+    </div>
+    <div class="advice-card">
+      <div class="section-label" style="margin-bottom: 8px;">What to do next</div>
+      <div class="advice-text" id="adviceText"></div>
+    </div>
+    <p class="disclaimer">This tool highlights common scam patterns — always verify independently before sharing personal details or paying money.</p>
+  </div>
+</main>
+
+<footer>jobscamchecker.co.uk &nbsp;·&nbsp; Free tool, no data stored</footer>
+
+<script>
+async function checkScam() {
+  const msg = document.getElementById('scamMsg').value.trim();
+  if (!msg) return;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('checkBtn').textContent = 'Scanning...';
+
+  const prompt = 'You are a UK job scam detection expert. Analyse this message and return ONLY valid JSON with: verdict (safe/suspicious/scam), summary (one sentence under 20 words), flags (array of {name, detail, severity: low/medium/high}), advice (2-3 sentences on what to do).\n\nMessage:\n' + msg;
+
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 800, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const raw = data.content[0].text.replace(/```json|```/g, '').trim();
+    showResults(JSON.parse(raw));
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('checkBtn').textContent = 'Check for scam signals';
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+function showResults(r) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('checkBtn').disabled = false;
+  document.getElementById('checkBtn').textContent = 'Check for scam signals';
+
+  const card = document.getElementById('verdictCard');
+  card.className = 'verdict-card ' + (r.verdict || 'suspicious');
+  const labels = { safe: '✅ Looks Legitimate', suspicious: '⚠️ Suspicious — Proceed with Caution', scam: '🚨 Likely Scam' };
+  document.getElementById('verdictText').textContent = labels[r.verdict] || r.verdict;
+  document.getElementById('verdictSummary').textContent = r.summary;
+
+  const sevColors = { low: '#1d6f42', medium: '#a05c00', high: '#c0392b' };
+  const label = document.getElementById('flagsLabel');
+  const list = document.getElementById('flagsList');
+
+  if (r.flags && r.flags.length > 0) {
+    label.textContent = 'Scam signals found (' + r.flags.length + ')';
+    list.innerHTML = r.flags.map(f => '<div class="flag-item"><div class="flag-dot" style="background:' + (sevColors[f.severity]||'#a05c00') + '"></div><div><div class="flag-name">' + f.name + '</div><div class="flag-detail">' + f.detail + '</div></div></div>').join('');
+  } else {
+    label.textContent = '';
+    list.innerHTML = '<p style="font-size:14px;color:var(--text2);padding:0.5rem 0;">No major scam signals detected.</p>';
+  }
+  document.getElementById('adviceText').textContent = r.advice;
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
